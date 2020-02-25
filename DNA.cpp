@@ -1,13 +1,77 @@
 #include "DNA.h"
 
 // CONSTRUCTORS
-DNA::DNA(string newDnaString, string newOutPath = "lwelsh.out") {
+DNA::DNA(string inString, string newOutPath = "lwelsh.out", bool literal = false) {
+	
+	string newDnaString = "";
+	
+	if(!literal) {
+		ifstream inStream;
+		inStream.open(inString);
+		
+		if (!inStream.is_open()) {
+			cout << endl << "Could not open input file." << endl;
+			//return 1; // 1 indicates error
+		}
+		else {
+			
+			string temp = "";
+			
+			while (!inStream.eof()) {
+				
+				inStream >> temp;
+				//cout << temp;
+				newDnaString += temp + '\n';
+				
+			}
+		
+		}
+	}
+	else {
+		
+		newDnaString = inString;
+		
+	}
+	
+	//cout << newDnaString << endl;
+	//cout << "Holy crap it worked?" << endl;
+	
+	init(newDnaString, newOutPath);
+	
+}
+
+/*
+DNA::DNA(ifstream inStream) {
+	
+	if (!inStream.is_open()) {
+		cout << "Could not open input file." << endl;
+		//return 1; // 1 indicates error
+	}
+	else {
+		
+		string newDnaString = "";
+		string temp = "";
+		
+		while (!inStream.eof()) {
+			
+			inStream >> temp;
+			cout << temp;
+			
+		}
+	
+	}
+}
+*/
+
+void DNA::init(string newDnaString, string newOutPath = "lwelsh.out") {
 	
 	srand(time(0));
 	
+	/*
 	outPath = newOutPath;
 	outFile.open(outPath);
 	outFile.close();
+	*/
 	outFile.open(outPath, ios::app);
 	
 	dnaString = newDnaString;
@@ -26,7 +90,8 @@ DNA::DNA(string newDnaString, string newOutPath = "lwelsh.out") {
 	
 	//Debug: cout << "\tOingo" << endl;
 	
-	compute();
+	compute();	
+	
 }
 
 
@@ -319,7 +384,11 @@ int DNA::genLength(double lenStdDev, double lenMean) {
 	double d = (lenStdDev * c) + lenMean;
 	// ^-- "Life has many doors, Ed-boy!"
 
-	return static_cast<int>(d);
+	
+	
+	return (d > 0) ? static_cast<int>(d) : 1;	// Minimum of one nucleotide per line.
+	
+	//return static_cast<int>(d);
 }
 
 char DNA::genNucleo() {

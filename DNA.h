@@ -19,7 +19,8 @@ using namespace std;
 class DNA {
 	
 	public:
-		DNA(string newDnaString, string newOutPath);
+		DNA(string inString, string newOutPath, bool literal);
+		//DNA(ifstream inStream);
 		~DNA();
 	
 
@@ -54,6 +55,8 @@ class DNA {
 		string bigramProb;
 
 
+		
+		void init(string newDnaString, string newOutPath);
 
 		int countLines(string inStr);
 		int dnaLength(int line);
