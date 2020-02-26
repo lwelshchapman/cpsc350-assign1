@@ -1,78 +1,54 @@
+/* 
+ * Logan Welsh
+ * 2325215
+ * lwelsh@chapman.edu
+ * CPSC-350-01
+ * Assignment 1
+ * DNA.cpp
+ * Definition of class for working with "DNA lists".
+ */
+
 #include "DNA.h"
 
+
 // CONSTRUCTORS
-DNA::DNA(string inString, string newOutPath = "lwelsh.out", bool literal = false) {
+
+DNA::DNA(string inPath, string newOutPath = "lwelsh.out", bool literal = false) {
+
 	
+	// GET DNA LIST FROM GIVEN FILE.
 	string newDnaString = "";
 	
-	if(!literal) {
-		ifstream inStream;
-		inStream.open(inString);
-		
-		if (!inStream.is_open()) {
-			cout << endl << "Could not open input file." << endl;
-			//return 1; // 1 indicates error
-		}
-		else {
-			
-			string temp = "";
-			
-			while (!inStream.eof()) {
-				
-				inStream >> temp;
-				//cout << temp;
-				newDnaString += temp + '\n';
-				
-			}
-		
-		}
-	}
-	else {
-		
-		newDnaString = inString;
-		
-	}
-	
-	//cout << newDnaString << endl;
-	//cout << "Holy crap it worked?" << endl;
-	
-	init(newDnaString, newOutPath);
-	
-}
-
-/*
-DNA::DNA(ifstream inStream) {
+	ifstream inStream;
+	inStream.open(inPath);
 	
 	if (!inStream.is_open()) {
-		cout << "Could not open input file." << endl;
-		//return 1; // 1 indicates error
+		
+		cout << "!! Could not open " + inPath + ". Using arbitrary values." << endl;
+		newDnaString = DNA::genDnaString(5, 20, 1000);
+
 	}
 	else {
 		
-		string newDnaString = "";
 		string temp = "";
-		
+
 		while (!inStream.eof()) {
 			
 			inStream >> temp;
-			cout << temp;
 			
-		}
-	
+			if (!inStream.fail()) {
+				
+				newDnaString += temp + '\n';				
+			}	
+		}	
 	}
-}
-*/
-
-void DNA::init(string newDnaString, string newOutPath = "lwelsh.out") {
 	
-	srand(time(0));
+	//Debug: cout << newDnaString << endl;
 	
-	/*
+	
+	
+	// SET UP MEMBER VARIABLES.
 	outPath = newOutPath;
-	outFile.open(outPath);
-	outFile.close();
-	*/
-	outFile.open(outPath, ios::app);
 	
 	dnaString = newDnaString;
 	dnaLengthStr = "";
@@ -83,36 +59,30 @@ void DNA::init(string newDnaString, string newOutPath = "lwelsh.out") {
 	variance = 0.0;
 	stdDev = 0.0;
 	
-	totalNucleo = 0;
-	
 	nucleoProb = "";
 	bigramProb = "";
 	
 	//Debug: cout << "\tOingo" << endl;
 	
-	compute();	
+	
+	
+	// COMPUTE STATISTICS.
+	compute();	// Runs automatically upon instantiation! Saves some redundant code elsewhere.
+
 	
 }
 
 
-DNA::~DNA() {
-	outFile.close();
+DNA::~DNA() {	// Nothing to do here... no pointers to delete!
 	//Debug: cout << "\tBoingo" << endl;
 }
 
 
 const string DNA::NUCLEO = "atcg";
-
-// MUTATORS
-//void DNA::setDnaString(string newDnaString) {
-	
-	
+const string DNA::CONTACT_INFO = "Logan Welsh\n2325215\nlwelsh@chapman.edu\nCPSC-350-01\nAssignment 1\n";
 
 
 
-
-
-// ACCESSORS
 
 
 
@@ -120,42 +90,38 @@ const string DNA::NUCLEO = "atcg";
 
 
 // MASTER COMPUTATION
+
 void DNA::compute() {
 	
-	lines = countLines(dnaString);
+	lines = countLines(dnaString);	// Get the number of lines in the DNA list.
 	
-	getDnaLengthStr();
+	getDnaLengthStr();	// Concatenate the lengths of each line into one string (in place of an array).
 	
-	calcDnaSum();
+	calcDnaSum();	// Calculate the sum of the lengths of each line.
 	
-	calcDnaMean();
+	calcDnaMean();	// Calculate the mean of the lengths of each line.
 	
-	calcDnaVariance();
+	calcDnaVariance();	// Calculate the variance of the lengths of each line.
 	
-	calcDnaStdDev();
+	calcDnaStdDev();	// Calculate the standard deviation of the lengths of each line.
 	
-	calcNucleoProb();
+	calcNucleoProb();	// Calculate the relative probability of each nucleotide.
 
-	calcBigramProb();
+	calcBigramProb();	// Calculate the relative probability of each bigram.
 	
-	/*
-	for(int i = 0; i < 100; ++i) {
-		//cout << genLength() << endl;
-		cout << genNucleo() << endl;
-	}
-	*/
-	
-	//cout << genDnaString(100) << endl;
 }
 
 
 
-// SUB-COMPUTATION
-int DNA::countLines(string inStr) {
+
+
+// SUB-COMPUTATIONS
+
+int DNA::countLines(string inStr) {	// Get the number of lines in the DNA list.
 	int lineCount = 0;
 	
-	for(int i = 0; i < dnaString.size(); ++i) {
-		if(dnaString[i] == '\n') {
+	for(int i = 0; i < inStr.size(); ++i) {
+		if(inStr[i] == '\n') {
 			lineCount += 1;
 		}
 	}
@@ -164,7 +130,7 @@ int DNA::countLines(string inStr) {
 }
 
 
-int DNA::dnaLength(int line) {
+int DNA::dnaLength(int line) {	// Get the length of a specific line.
 	int currentLine = 0;
 	int countInd = 0;
 	int count = 0;
@@ -195,7 +161,7 @@ int DNA::dnaLength(int line) {
 }
 
 
-void DNA::getDnaLengthStr() {
+void DNA::getDnaLengthStr() {	// Concatenate the lengths of each line into one string (in place of an array).
 	
 	dnaLengthStr = "";
 	
@@ -206,7 +172,7 @@ void DNA::getDnaLengthStr() {
 }
 
 
-void DNA::calcDnaSum() {
+void DNA::calcDnaSum() {	// Calculate the sum of the lengths of each line.
 	
 	sum = 0;
 	string temp = "";
@@ -225,14 +191,14 @@ void DNA::calcDnaSum() {
 }
 
 
-void DNA::calcDnaMean() {
+void DNA::calcDnaMean() {	// Calculate the mean of the lengths of each line.
 
 	mean = static_cast<double>(sum) / lines;
 
 }
 
 
-void DNA::calcDnaVariance() {
+void DNA::calcDnaVariance() {	// Calculate the variance of the lengths of each line.
 
 	double sqSum = 0;
 	string temp = "";
@@ -258,16 +224,16 @@ void DNA::calcDnaVariance() {
 }
 
 
-void DNA::calcDnaStdDev() {
+void DNA::calcDnaStdDev() {	// Calculate the standard deviation of the lengths of each line.
 	
 	stdDev = sqrt(variance);
 	
 }
 
 
-void DNA::calcTotalNucleo() {
+int DNA::calcTotalNucleo() {	// Calculate the total number of nucleotides.
 	
-	totalNucleo = 0;
+	int totalNuc = 0;
 	
 	for(int i = 0; i < dnaString.size(); ++i) {
 		
@@ -275,19 +241,20 @@ void DNA::calcTotalNucleo() {
 			
 			if(tolower(dnaString[i]) == NUCLEO[j]) {
 				
-				totalNucleo += 1;
+				totalNuc += 1;
 				break;
 				
 			}
 		}
 	}
 
+	return totalNuc;
 }
 
 
-void DNA::calcNucleoProb() {
+void DNA::calcNucleoProb() {	// Calculate the relative probability of each nucleotide.
 	
-	calcTotalNucleo();
+	int totalNucleo = calcTotalNucleo();
 	
 	nucleoProb = "";
 	int nucSum = 0;
@@ -306,29 +273,29 @@ void DNA::calcNucleoProb() {
 		nucleoProb += ": " + to_string(100 * static_cast<double>(nucSum) / totalNucleo) + "%\n";
 		nucSum = 0;
 	}
-
 }
 
 
-void DNA::calcTotalBigrams() {
+int DNA::calcTotalBigrams() {	// Calculate the total number of bigrams.
 	
-	totalBigrams = 0;
+	int totalBi = 0;
 	
 	for(int i = 0; i < dnaString.size() -1; ++i) {
 		
 		if( !( (dnaString[i] == '\n') || (dnaString[i + 1] == '\n') ) ) {
 			
-			totalBigrams += 1;
+			totalBi += 1;
 			
 		}
 	}
 	
+	return totalBi;
 }
 
 
-void DNA::calcBigramProb() {
+void DNA::calcBigramProb() {	// Calculate the relative probability of each bigram.
 	
-	calcTotalBigrams();
+	int totalBigrams = calcTotalBigrams();
 	
 	bigramProb = "";
 	int biSum = 0;
@@ -356,7 +323,6 @@ void DNA::calcBigramProb() {
 						biSum += 1;
 						
 					}
-	
 				}
 			}
 
@@ -366,12 +332,16 @@ void DNA::calcBigramProb() {
 
 		}
 	}
-
 }
 
 
 
-int DNA::genLength(double lenStdDev, double lenMean) {
+
+
+
+// DNA GENERATION
+
+int DNA::genLength(double lenStdDev, double lenMean) {	// Generate a new line length based on the Box-Muller transform thing.
 	
 	//FIX: a and b are supposed to fall within [0, 1). Right now there is a tiny chance they can be 1.
 	
@@ -381,24 +351,21 @@ int DNA::genLength(double lenStdDev, double lenMean) {
 	
 	double c = sqrt( -2 * log(a) ) * cos( 2 * (4 * atan(1)) * b);
 	
-	double d = (lenStdDev * c) + lenMean;
+	int d = static_cast<int>( (lenStdDev * c) + lenMean );
 	// ^-- "Life has many doors, Ed-boy!"
-
 	
+	return (d > 0) ? d : 1;	// Minimum of one nucleotide per line.
 	
-	return (d > 0) ? static_cast<int>(d) : 1;	// Minimum of one nucleotide per line.
-	
-	//return static_cast<int>(d);
 }
 
-char DNA::genNucleo() {
+char DNA::genNucleo() {	// Randomly generate a nucleotide. Basically just rolling a D4.
 	
 	int i = rand() % NUCLEO.size();
 	return NUCLEO[i];
 
 }
 
-string DNA::genLine(int len) {
+string DNA::genLine(int len) {	// Generate a line of random nucleotides from a given length.
 
 	string newLine = "";
 	
@@ -408,13 +375,12 @@ string DNA::genLine(int len) {
 		
 	}
 
-	newLine += '\n';
+	newLine += "\n";
 	return newLine;
-
 }
 
 
-string DNA::genDnaString(double lenStdDev, double lenMean, int lineAmount = 1000) {
+string DNA::genDnaString(double lenStdDev, double lenMean, int lineAmount = 1000) {	// [Overloaded] Generate and combine multiple DNA lines into a DNA list.
 	
 	string newDnaString = "";
 	
@@ -425,17 +391,21 @@ string DNA::genDnaString(double lenStdDev, double lenMean, int lineAmount = 1000
 	}
 	
 	return newDnaString;
-	
 }
 
-string DNA::genDnaString(int lineAmount = 1000) {
+
+string DNA::genDnaString(int lineAmount = 1000) {	// Generate and combine multiple DNA lines into a DNA list.
 	return genDnaString(stdDev, mean, lineAmount);
 }
 
 
-// MISC
 
-string DNA::statString() {
+
+
+
+// DATA OUTPUT
+
+string DNA::statString() {	// Generate a labelled string containing the calculated statistics.
 	string outStr = "";
 	
 	outStr += "Lines: " + to_string(lines) + '\n';
@@ -443,7 +413,6 @@ string DNA::statString() {
 	outStr += "Mean: " + to_string(mean) + '\n';
 	outStr += "Variance: " + to_string(variance) + '\n';
 	outStr += "Standard Deviation: " + to_string(stdDev) + '\n';
-	outStr += "Total Nucleotides: " + to_string(totalNucleo) + '\n';
 	outStr += "Nucleotide Probability: \n" + nucleoProb;
 	outStr += "Bigram Probability: \n" + bigramProb;
 	
@@ -451,21 +420,11 @@ string DNA::statString() {
 }
 
 
-void DNA::outputResults() {
+void DNA::outputToFile(string data, std::ios_base::openmode flag = ios::app) {	// Write a string to this DNA list's output file.
 	
-	string header = "Logan Welsh\n2325215\nlwelsh@chapman.edu\nCPSC-350-01\nAssignment 1\n";
-	/*
-	"Logan Welsh" +
-	"2325215" +
-	"lwelsh@chapman.edu" +
-	"CPSC-350-01" +
-	"Assignment 1"
-	*/
-	
-	string stats = statString();
-	
-	//string fullStr = header + statString;
-	
-	outFile << header + "\n" + stats;
-	
+	ofstream outStream;
+	outStream.open(outPath, flag);
+	outStream << data;
+	outStream.close();
+
 }
